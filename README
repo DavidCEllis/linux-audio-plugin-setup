@@ -1,42 +1,44 @@
 # Linux Streaming Audio Setup #
 
 This repository exists to guide in the setup and chaining of windows VSTs on Linux
-without accidentally breaking your system.
+without locking your system to an old version of Wine. These largely exist to remind me how to do this if I need to do it again and to collect the scripts I made to help me in doing so.
 
 It is expected that you know a little about how to use the terminal and how to install packages from
 your distribution's package manager and flatpaks from flathub.
 
 The final steps also assume your distribution uses pipewire for audio (try `pipewire --version` in a terminal)
 
+The scripts provided place symlinks for configuration and applications to this folder to make
+editing and updating the scripts or configuration files easier. This means this folder needs to be
+in a specific place and should not be removed.
+
 ## Step 1 - Required Software ##
 
-* yabridge - Wrapper to make Windows VSTs work under Linux
-  * https://github.com/robbert-vdh/yabridge
-    * Download a release from: https://github.com/robbert-vdh/yabridge/releases/
-  * At the time of writing the latest release was 5.1.1 which did not support Wine later than 9.21
-  * Note that it's not guaranteed your VSTs will work
-  * Those that rely on hardware such as iLok are unlikely to work correctly
+* [yabridge](https://github.com/robbert-vdh/yabridge) - Wrapper to make Windows VSTs work under Linux
+  * Install using the Ubuntu/Debian/Mint instructions
+    * Obtain the [yabridge-5.1.1.tar.gz](https://github.com/robbert-vdh/yabridge/releases/download/5.1.1/yabridge-5.1.1.tar.gz) archive from the [releases page](https://github.com/robbert-vdh/yabridge/releases)
+    * Extract the contents of the downloaded archive to `~/.local/share`, such that the file `~/.local/share/yabridge/yabridgectl` exists after extracting.
+    * Don't use the Fedora COPR for these instructions/scripts
 
-* Bottles - Wine environment manager
-  * https://flathub.org/en/apps/com.usebottles.bottles
-  * This will handle setting up the older version of Wine that yabridge relies on
-    without requiring you to hold back your system Wine.
+* [Bottles](https://flathub.org/en/apps/com.usebottles.bottles) - Wine environment manager
+  * Install from the [flatpak](https://flathub.org/en/apps/com.usebottles.bottles)
 
-* Carla - VST Host and audio routing
+* [Carla](https://kx.studio/Applications:Carla) - VST Host and audio routing
   * Fedora: `sudo dnf install Carla`
   * Fedora Atomic/Bazzite: `sudo rpm-ostree install Carla` (case sensitive)
     * Unfortunately in my experience the flatpak is unable to use the converted VSTs
-    * The `brew` install failed connect to the audio server
+    * The `brew` install failed connect to JACK for some reason
     * There may be a way other than layering to get this to work, but I haven't had any luck
+    * It's possible the binaries from kx.studio may work but I haven't tried them yet
 
-* yq - Command line YAML parser
-  * This is used to retrieve configuration information from the `bottle.yml` file to find the correct wine runtime
-  * This should be available from your distribution, or through brew
+* [yq](https://github.com/mikefarah/yq) - Command line YAML parser (used to get details from the wine environment)
   * Fedora: `sudo dnf install yq`
+  * Fedora Atomic: `sudo rpm-ostree install yq` (reboot required)
+  * Bazzite: `brew install yq`
 
-## Step 2 - Installing your VSTs ##
+## Step 2 - Setting up the "Windows" environment and installing VSTs ##
 
-In order for yabridge 5.1.1 to work you need a version of wine staging no later than 9.21. For this I'm using the 9.21-staging install from `Kron4ek` on the bottles runners list.
+In order for yabridge 5.1.1 to work you need a version of wine staging no later than 9.21[^1]. For this I'm using the 9.21-staging install from `Kron4ek` on the bottles runners list.
 
 In Bottles:
 
@@ -46,37 +48,66 @@ In Bottles:
 * Create a new bottle
   * I've used `Application` as the base, it may not be necessary
   * Make sure the Runner is "kron4ek-wine-9.21-staging-tkg-amd64" and not a different runtime
-* Install your VSTs into this newly created bottle
+* Install your VSTs into this newly created bottle through the UI
+  * I would install a small set to check everything works, you can install more later if needed
 
 ## Step 3 - Setting up YABridge ##
 
 Some files need to be in place for yabridge to work correctly.
 
-* If `bottles` was not installed via flatpak or "kron4ek-wine-9.21-staging-tkg-amd64" was not used as the runtime
-  edit the value of `YABRIDGE_WINE` in `runtime_config/wineloader.conf` to point to the correct wine runtime
+* Edit the runtime_config/wineloader.conf file `YABRIDGE_WINE` value if you have used a different install location or wine runtime
 
-* With this folder as your working directory:
-  * Make sure `wineloader.py` is executable
-    * `sudo chmod +x ./runtime_scripts/wineloader.py`
-  * Make links to the .conf file and the wineloader to handle selection of wine runtimes for yabridge:
-    * `-rs` makes the link relative and symbolic, the advantage over copying is modifications done here will be included
-      without copying again.
-    * `ln -rs ./runtime_config/wineloader.conf ~/.config/environment.d/wineloader.conf`
-    * `ln -rs ./runtime_scripts/wineloader.py ~/.local/bin/wineloader.py`
+* Run `./setup_scripts/yabridge_setup.py` to install the configuration file and script
 
-* Log out and log back in (or reboot)
+* **Reboot or logout and log back in to complete installation**
 
-* Install YABridge based on the directions for Debian/Ubuntu
-  * Download the archive from github releases, extract to `~/.local/share/`
-  * Symlink the `yabridgectl` binary to your `~/.local/bin`
-  * `ln -rs ~/.local/share/yabridge/yabridgectl ~/.local/bin/yabridgectl`
+* Run `./setup_scripts/yabridge_bottle_finder.py` to discover your VST folders
 
-* Add
+* Sync `yabridge` with your VSTs
+  * run `yabridgectl sync`
+  * You should see it list your VSTs
+
+## Step 4 - Setting up an Audio Sink (Optional) (Requires pipewire) ##
+
+This step adds a "desktop audio" device and a virtual "microphone" that can be used for routing audio in Carla.
+
+* Run `./setup_scripts/setup_pipewire_sinks.py`
+  * If your system does not use pipewire, this should fail with an error message
+  * If you had some applications using audio, this will disconnect them in order to add the new virtual
+    devices
+
+
+## Step 5 - Route your audio and setup your VSTs
+
+Load up Carla and add your plugins.
+
+* Check in Settings -> Plugin Paths that paths with `/home/USERNAME/.vst` and `/home/USERNAME/.vst3` are included.
+* You will have to work out which audio device represents your own hardware inputs/outputs.
+* Use the patchbay to manage routing
+
+After going through your effects chain, send the processed microphone to `microphone-vst-sink` and desktop audio to `processed-audio-vst-sink`.
+
+Routing
+```
+Desktop Audio -> VST Routing -> processed-audio-vst-sink -> OBS
+Microphone -> VST Routing -> microphone-vst-sink -> OBS
+```
+
+## Step 6 - Connect OBS ##
+
+* Launch OBS, set desktop audio to `Desktop Audio VST Processing Sink`, microphone to `Microphone VST Processing Sink`
+
 
 ## Sources ##
 
 * Original yabridge wineloader script
   * https://github.com/microfortnight/yabridge-bottles-wineloader
+  * The script included here modifies this by adding a `YABRIDGE_WINE` environment variable
+    that is used as if there is no system wine (such as on bazzite by default).
 * Audio Sink Information
   * https://www.benashby.com/resources/pipewire-virtual-devices/
   * https://gitlab.freedesktop.org/pipewire/pipewire/-/wikis/Virtual-Devices#create-a-sink
+
+[^1]: If you use a later version of Wine, your UI may not line up with your mouse cursor due to changes in rendering.
+
+[^2]: The COPR repository will work for Fedora, but it pins your system Wine to an old version which is undesirable.
