@@ -89,8 +89,8 @@ After going through your effects chain, send the processed microphone to `microp
 
 Routing
 ```
-Desktop Audio -> VST Routing -> processed-audio-vst-sink -> OBS
-Microphone -> VST Routing -> microphone-vst-sink -> OBS
+Desktop Audio -> VST Routing -> processed-audio-vst-sink
+Microphone -> VST Routing -> microphone-vst-sink
 ```
 
 ## Step 6 - Connect OBS ##
