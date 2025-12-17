@@ -31,7 +31,7 @@ in a specific place and should not be removed.
 * [Carla](https://kx.studio/Applications:Carla) - VST Host and audio routing
   * Fedora: `sudo dnf install Carla`
   * Fedora Atomic/Bazzite: `sudo rpm-ostree install Carla` (case sensitive)
-    * Unfortunately I found the flatpak was unable to use the converted VSTs
+    * [The flatpak package will not work with the converted VSTs](https://github.com/robbert-vdh/yabridge?tab=readme-ov-file#tested-with)
     * The `brew` install under Bazzite failed to connect to JACK for some reason so was similarly unusable
     * There may be a way other than layering to get this to work, but I haven't had any luck
 
