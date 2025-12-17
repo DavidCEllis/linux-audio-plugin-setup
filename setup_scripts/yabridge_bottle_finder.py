@@ -88,6 +88,9 @@ def set_yabridge_vst_folders() -> None:
                 check=True,
             )
 
+    if not add_vst_folders and not remove_vst_folders:
+        print("No changes to yabridge VST folders")
+
 
 def main():
     set_yabridge_vst_folders()
