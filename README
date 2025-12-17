@@ -6,6 +6,9 @@ without locking your system to an old version of Wine. These largely exist to re
 It is expected that you know a little about how to use the terminal and how to install packages from
 your distribution's package manager and flatpaks from flathub.
 
+As a Fedora/Bazzite user these instructions are largely targeted at that distribution and will need
+to be modified if you use a Debian or Arch derived distro.
+
 The final steps also assume your distribution uses pipewire for audio (try `pipewire --version` in a terminal)
 
 The scripts provided place symlinks for configuration and applications to this folder to make
@@ -29,7 +32,7 @@ in a specific place and should not be removed.
     * Unfortunately in my experience the flatpak is unable to use the converted VSTs
     * The `brew` install failed connect to JACK for some reason
     * There may be a way other than layering to get this to work, but I haven't had any luck
-    * It's possible the binaries from kx.studio may work but I haven't tried them yet
+    * It's possible the binaries from kx.studio may work but I haven't tried them as ostree worked
 
 * [yq](https://github.com/mikefarah/yq) - Command line YAML parser (used to get details from the wine environment)
   * Fedora: `sudo dnf install yq`
@@ -76,12 +79,12 @@ This step adds a "desktop audio" device and a virtual "microphone" that can be u
   * If you had some applications using audio, this will disconnect them in order to add the new virtual
     devices
 
-
 ## Step 5 - Route your audio and setup your VSTs
 
 Load up Carla and add your plugins.
 
-* Check in Settings -> Plugin Paths that paths with `/home/USERNAME/.vst` and `/home/USERNAME/.vst3` are included.
+* Check in Settings -> Plugin Paths that paths with `/home/USERNAME/.vst` and `/home/USERNAME/.vst3` are included
+* Scan for VSTs
 * You will have to work out which audio device represents your own hardware inputs/outputs.
 * Use the patchbay to manage routing
 
