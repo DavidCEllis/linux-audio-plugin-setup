@@ -1,4 +1,4 @@
-# Linux Streaming Audio Setup #
+# Linux Audio Plugin Setup #
 
 This repository exists to guide in the setup and chaining of Windows VSTs on Linux using [yabridge](https://github.com/robbert-vdh/yabridge)
 without locking your system to an old version of Wine.
