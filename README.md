@@ -113,5 +113,3 @@ Microphone -> VST Routing -> microphone-vst-sink
   * https://gitlab.freedesktop.org/pipewire/pipewire/-/wikis/Virtual-Devices#create-a-sink
 
 [^1]: If you use a later version of Wine, your UI may not line up with your mouse cursor due to changes in rendering.
-
-[^2]: The COPR repository will work for Fedora, but it pins your system Wine to an old version which is undesirable.
