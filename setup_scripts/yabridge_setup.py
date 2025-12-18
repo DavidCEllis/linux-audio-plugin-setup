@@ -85,6 +85,7 @@ class Config:
             },
             indent=2,
         )
+        config_path.parent.mkdir(exist_ok=True)
         config_path.write_text(config_text)
 
 
