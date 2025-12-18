@@ -179,7 +179,7 @@ def main():
     else:
         config = Config.create()
         config.write(CONFIG_PATH)
-        print("Config written to '{CONFIG_PATH}'")
+        print(f"Config written to '{CONFIG_PATH}'")
 
         make_wineloader_executable(WINELOADER_SCRIPT)
         install(script_dest, conf_dest)
