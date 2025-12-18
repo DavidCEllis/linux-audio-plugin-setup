@@ -1,5 +1,5 @@
 # User config files
-runtime_config/*.json
+user_config/
 
 # IntelliJ project files
 .idea

@@ -29,7 +29,7 @@ if YQ_BIN is None:
 SYSTEM_WINE = shutil.which("wine")
 WINEPREFIX = os.environ.get("WINEPREFIX")
 
-CONFIG_PATH = Path(__file__).resolve().parents[1] / "runtime_config" / "wine_settings.json"
+CONFIG_PATH = Path(__file__).resolve().parents[1] / "user_config" / "wine_settings.json"
 
 
 @dataclass

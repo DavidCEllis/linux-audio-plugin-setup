@@ -12,7 +12,7 @@ from tkinter import Tk, filedialog
 
 WINELOADER_SCRIPT = Path(__file__).parents[1] / "runtime_scripts/wineloader.py"
 WINELOADER_CONF = Path(__file__).parents[1] / "runtime_config/wineloader.conf"
-CONFIG_PATH = Path(__file__).parents[1] / "runtime_config/wine_settings.json"
+CONFIG_PATH = Path(__file__).parents[1] / "user_config/wine_settings.json"
 
 if not (WINELOADER_CONF.exists() and WINELOADER_SCRIPT.exists()):
     raise FileNotFoundError("Could not find wineloader.py and/or wineloader.conf")
