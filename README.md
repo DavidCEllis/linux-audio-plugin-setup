@@ -6,8 +6,7 @@ without locking your system to an old version of Wine.
 It is expected that you know a little about how to use the terminal and how to install packages from
 your distribution's package manager and flatpaks from flathub.
 
-As a Fedora/Bazzite user these instructions are largely targeted at that distribution and will need
-to be modified if you use a Debian or Arch derived distro.
+As a Fedora/Bazzite user these instructions are largely targeted at that distribution family and will need to be modified if you use a Debian or Arch derived distro.
 
 The final steps also assume your distribution uses pipewire for audio (try `pipewire --version` in a terminal)
 
