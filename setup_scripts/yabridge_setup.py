@@ -11,6 +11,19 @@ WINELOADER_CONF = Path(__file__).parents[1] / "runtime_config/wineloader.conf"
 if not (WINELOADER_CONF.exists() and WINELOADER_SCRIPT.exists()):
     raise FileNotFoundError("Could not find wineloader.py and/or wineloader.conf")
 
+
+def get_yabridge_wine_path(wineloader_conf: Path) -> Path:
+    """
+    Return the path to the yabridge wineloader
+    """
+    conf_data = {}
+    with open(wineloader_conf) as f:
+        for line in f:
+            key, _, value = line.partition("=")
+            conf_data[key] = value
+
+    return Path(conf_data["YABRIDGE_WINE"])
+
 def install(script_dest: Path, conf_dest: Path):
     # Make sure the bin folder exists and symlink wineloader.py into it
     script_dest.parent.mkdir(parents=True, exist_ok=True)
@@ -39,10 +52,10 @@ def uninstall(script_dest: Path, conf_dest: Path):
         print(f"'{conf_dest}' removed")
 
 
-def make_wineloader_executable():
+def make_wineloader_executable(wineloader_script):
     # Make sure the script is executable
     subprocess.run(
-        ["chmod", "+x", WINELOADER_SCRIPT],
+        ["chmod", "+x", wineloader_script],
         check=True,
     )
 
@@ -98,7 +111,13 @@ def main():
         remove_yabridge_symlink()
         uninstall(script_dest, conf_dest)
     else:
-        make_wineloader_executable()
+        wine_path = get_yabridge_wine_path(WINELOADER_CONF)
+        if not wine_path.exists():
+            raise FileNotFoundError(
+                f"Could not find wine binary at '{wine_path}' listed in wineloader.conf"
+            )
+
+        make_wineloader_executable(WINELOADER_SCRIPT)
         install(script_dest, conf_dest)
         create_yabridge_symlink()
         print("Restart or logout/login to complete installation")
