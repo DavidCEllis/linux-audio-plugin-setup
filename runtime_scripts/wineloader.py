@@ -97,9 +97,10 @@ def main() -> int:
     # Python's os.exec* functions treat the first argument as the name of the executable
     args = ["wine", *sys.argv[1:]]
 
-    tempf = Path(__file__).resolve().parent / "tempf.txt"
-    with open(tempf, mode='a') as f:
-        f.write(f"Prefix={WINEPREFIX} | {os.environ.get('WINEPREFIX')}\n")
+    # Some tempfile writing used when debugging
+    # tempf = Path(__file__).resolve().parent / "tempf.txt"
+    # with open(tempf, mode='a') as f:
+    #     f.write(f"Prefix={WINEPREFIX} | {os.environ.get('WINEPREFIX')}\n")
 
     # Execute wine and replace the python process
     os.execvp(wine_exe, args)
