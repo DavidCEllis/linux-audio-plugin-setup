@@ -2,6 +2,7 @@
 # This sets up the wineloader script so yabridge uses the correct versions of wine
 
 import argparse
+import os.path
 import subprocess
 from pathlib import Path
 
@@ -22,16 +23,20 @@ def get_yabridge_wine_path(wineloader_conf: Path) -> Path:
             key, _, value = line.partition("=")
             conf_data[key] = value
 
-    return Path(conf_data["YABRIDGE_WINE"])
+    base_path = os.path.expandvars(conf_data["YABRIDGE_WINE"].strip())
+
+    return Path(base_path)
 
 def install(script_dest: Path, conf_dest: Path):
     # Make sure the bin folder exists and symlink wineloader.py into it
     script_dest.parent.mkdir(parents=True, exist_ok=True)
+    script_dest.unlink(missing_ok=True)
     script_dest.symlink_to(WINELOADER_SCRIPT.absolute())
     print(f"Link from '{WINELOADER_SCRIPT}' to '{script_dest}' created")
 
     # Symlink the conf file too
     conf_dest.parent.mkdir(parents=True, exist_ok=True)
+    conf_dest.unlink(missing_ok=True)
     conf_dest.symlink_to(WINELOADER_CONF.absolute())
     print(f"Link from '{WINELOADER_CONF}' to '{conf_dest}' created")
 
