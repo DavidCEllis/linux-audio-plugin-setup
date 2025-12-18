@@ -2,6 +2,7 @@
 # This script will search for the standard VST Folders in 'bottles' and automatically add them to YABridge
 # This assumes that bottles has been installed from the flatpak
 
+import argparse
 import shutil
 import subprocess
 from pathlib import Path
@@ -49,20 +50,15 @@ def get_existing_vst_folders() -> set[Path]:
     return folders
 
 
-def set_yabridge_vst_folders() -> None:
+def set_yabridge_vst_folders(purge: bool = False) -> None:
     """
     Add new VST folders in bottles to yabridge
     Remove VST folders that no longer exist on the system
     """
     existing_vst_folders = get_existing_vst_folders()
-    new_vst_folders = find_vst_folders(BOTTLES_PATH)
-
-    add_vst_folders = new_vst_folders - existing_vst_folders
-    remove_vst_folders = [p for p in existing_vst_folders if not p.exists()]
-
-    if remove_vst_folders:
-        print("Removing VST folders that no longer exist:")
-        for p in remove_vst_folders:
+    if purge:
+        print("Removing all existing vst folders from yabridge")
+        for p in existing_vst_folders:
             print(f"\t{p}")
             subprocess.run(
                 [
@@ -73,27 +69,49 @@ def set_yabridge_vst_folders() -> None:
                 capture_output=True,
                 check=True,
             )
+    else:
+        new_vst_folders = find_vst_folders(BOTTLES_PATH)
+        add_vst_folders = new_vst_folders - existing_vst_folders
+        remove_vst_folders = [p for p in existing_vst_folders if not p.exists()]
 
-    if add_vst_folders:
-        print("Adding new VST folders:")
-        for p in add_vst_folders:
-            print(f"\t{p}")
-            subprocess.run(
-                [
-                    YABRIDGECTL,
-                    "add",
-                    p,
-                ],
-                capture_output=True,
-                check=True,
-            )
+        if remove_vst_folders:
+            print("Removing VST folders that no longer exist:")
+            for p in remove_vst_folders:
+                print(f"\t{p}")
+                subprocess.run(
+                    [
+                        YABRIDGECTL,
+                        "rm",
+                        p,
+                    ],
+                    capture_output=True,
+                    check=True,
+                )
 
-    if not add_vst_folders and not remove_vst_folders:
-        print("No changes to yabridge VST folders")
+        if add_vst_folders:
+            print("Adding new VST folders:")
+            for p in add_vst_folders:
+                print(f"\t{p}")
+                subprocess.run(
+                    [
+                        YABRIDGECTL,
+                        "add",
+                        p,
+                    ],
+                    capture_output=True,
+                    check=True,
+                )
+
+        if not add_vst_folders and not remove_vst_folders:
+            print("No changes to yabridge VST folders")
 
 
 def main():
-    set_yabridge_vst_folders()
+    parser = argparse.ArgumentParser(description="Add vst folders from bottles to yabridge automatically")
+    parser.add_argument("--purge", help="Remove all folders from yabridge", action="store_true")
+    args = parser.parse_args()
+
+    set_yabridge_vst_folders(purge=args.purge)
 
 
 if __name__ == "__main__":
