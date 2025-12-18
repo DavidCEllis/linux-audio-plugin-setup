@@ -1,0 +1,4 @@
+{
+  "default_wine": "/home/ducksual/.var/app/com.usebottles.bottles/data/bottles/runners/kron4ek-wine-9.21-staging-tkg-amd64/bin/wine",
+  "default_prefix": "/home/ducksual/.var/app/com.usebottles.bottles/data/bottles/bottles/yabridge-wine921"
+}

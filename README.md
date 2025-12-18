@@ -69,6 +69,9 @@ Some files need to be in place for yabridge to work correctly.
 * Edit the runtime_config/wineloader.conf file `YABRIDGE_WINE` value if you have used a different install location or wine runtime
 
 * Run `./setup_scripts/yabridge_setup.py` to install the configuration file and script
+  * This will ask you to find 2 files to complete configuration
+    * The first is the wine runner inside the 'kron4ek-wine-9.21-staging-tkg-amd64' directory, this should be in `bin/wine`
+    * The second is the `bottle.yml` file for the default wine prefix you wish to use for yabridge
 
 * **Reboot or logout and log back in to complete installation**
 

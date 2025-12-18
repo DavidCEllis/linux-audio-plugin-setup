@@ -2,30 +2,91 @@
 # This sets up the wineloader script so yabridge uses the correct versions of wine
 
 import argparse
-import os.path
+import json
 import subprocess
+from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
+from tkinter import Tk, filedialog
+
 
 WINELOADER_SCRIPT = Path(__file__).parents[1] / "runtime_scripts/wineloader.py"
 WINELOADER_CONF = Path(__file__).parents[1] / "runtime_config/wineloader.conf"
+CONFIG_PATH = Path(__file__).parents[1] / "runtime_config/wine_settings.json"
 
 if not (WINELOADER_CONF.exists() and WINELOADER_SCRIPT.exists()):
     raise FileNotFoundError("Could not find wineloader.py and/or wineloader.conf")
 
 
-def get_yabridge_wine_path(wineloader_conf: Path) -> Path:
-    """
-    Return the path to the yabridge wineloader
-    """
-    conf_data = {}
-    with open(wineloader_conf) as f:
-        for line in f:
-            key, _, value = line.partition("=")
-            conf_data[key] = value
+# Bottles paths
+BASE_PATH = Path.home() / ".var" / "app" / "com.usebottles.bottles" / "data" / "bottles" # Base flatpak path
+RUNTIME_PATH = BASE_PATH / "runners"  # Folder for bottles' wine runtimes
+BOTTLES_PATH = BASE_PATH / "bottles"  # Folder for bottles' bottles
 
-    base_path = os.path.expandvars(conf_data["YABRIDGE_WINE"].strip())
 
-    return Path(base_path)
+# File dialog helpers
+@contextmanager
+def handle_tk_root():
+    """
+    Short decorator to create, hide and destroy the necessary Tk root
+    Using tkinter directly without defining the root first leaves a small
+    blank window. This hides the window.
+    """
+    root = Tk()
+    root.withdraw()
+    try:
+        yield
+    finally:
+        root.destroy()
+
+
+@handle_tk_root()
+def askopenfilename(**options):
+    """
+    Passes to askopenfilenname
+    :param options: askopenfilename options (see tkinter docs)
+    :return: Path of filename or None
+    """
+    open_filename = filedialog.askopenfilename(**options)
+
+    if open_filename:
+        return Path(open_filename)
+    else:
+        return None
+
+
+@dataclass
+class Config:
+    default_wine: str
+    default_prefix: str
+
+    @classmethod
+    def create(cls):
+        default_wine = askopenfilename(
+            title="Select the default 'wine' executable",
+            initialdir=RUNTIME_PATH,
+        )
+
+        default_bottle = askopenfilename(
+            title="Select the default wine prefix bottle.yml file",
+            initialdir=BOTTLES_PATH,
+            filetypes=[("YAML Files", "*.yml")]
+        )
+
+        default_prefix = default_bottle.parent
+
+        return cls(str(default_wine), str(default_prefix))
+
+    def write(self, config_path: Path) -> None:
+        config_text = json.dumps(
+            {
+                "default_wine": self.default_wine,
+                "default_prefix": self.default_prefix,
+            },
+            indent=2,
+        )
+        config_path.write_text(config_text)
+
 
 def install(script_dest: Path, conf_dest: Path):
     # Make sure the bin folder exists and symlink wineloader.py into it
@@ -116,11 +177,9 @@ def main():
         remove_yabridge_symlink()
         uninstall(script_dest, conf_dest)
     else:
-        wine_path = get_yabridge_wine_path(WINELOADER_CONF)
-        if not wine_path.exists():
-            raise FileNotFoundError(
-                f"Could not find wine binary at '{wine_path}' listed in wineloader.conf"
-            )
+        config = Config.create()
+        config.write(CONFIG_PATH)
+        print("Config written to '{CONFIG_PATH}'")
 
         make_wineloader_executable(WINELOADER_SCRIPT)
         install(script_dest, conf_dest)

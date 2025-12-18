@@ -1,0 +1,3 @@
+Prefix=None | /home/ducksual/.var/app/com.usebottles.bottles/data/bottles/bottles/yabridge-wine921
+Prefix=/home/ducksual/.var/app/com.usebottles.bottles/data/bottles/bottles/vst-wine921 | /home/ducksual/.var/app/com.usebottles.bottles/data/bottles/bottles/vst-wine921
+Prefix=/home/ducksual/.var/app/com.usebottles.bottles/data/bottles/bottles/vst-wine921 | /home/ducksual/.var/app/com.usebottles.bottles/data/bottles/bottles/vst-wine921
