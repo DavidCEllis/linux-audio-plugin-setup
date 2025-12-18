@@ -6,7 +6,7 @@ without locking your system to an old version of Wine.
 It is expected that you know a little about how to use the terminal and how to install packages from
 your distribution's package manager and flatpaks from flathub.
 
-As a Fedora/Bazzite user these instructions are largely targeted at that distribution family and will need to be modified if you use a Debian or Arch derived distro.
+As a Fedora/Bazzite user these instructions are largely targeted at that distribution family and will need to be modified if you use a Debian or Arch derived distro. I have also tested this on Ubuntu 24.04 but not as thoroughly.
 
 The final steps also assume your distribution uses pipewire for audio (try `pipewire --version` in a terminal)
 
@@ -16,6 +16,12 @@ in a specific place and should not be removed.
 
 ## Step 1 - Required Software ##
 
+### Always Required ###
+
+* [Bottles](https://flathub.org/en/apps/com.usebottles.bottles) - Wine environment manager
+  * Install from the [flatpak](https://flathub.org/en/apps/com.usebottles.bottles)
+  * `flatpak install flathub com.usebottles.bottles`
+
 * [yabridge](https://github.com/robbert-vdh/yabridge) - Wrapper to make Windows VSTs work under Linux
   * Unfortunately this needs to be done manually at this point
   * Install using the Ubuntu/Debian/Mint instructions
@@ -23,21 +29,22 @@ in a specific place and should not be removed.
     * Extract the contents of the downloaded archive to `~/.local/share`, such that the file `~/.local/share/yabridge/yabridgectl` exists after extracting.
     * Don't use the Fedora COPR for these instructions/scripts
 
-* [Bottles](https://flathub.org/en/apps/com.usebottles.bottles) - Wine environment manager
-  * Install from the [flatpak](https://flathub.org/en/apps/com.usebottles.bottles)
-  * `flatpak install flathub com.usebottles.bottles`
+* [yq](https://github.com/mikefarah/yq) - Command line YAML parser (used to get details from the wine environment)
+  * Fedora: `sudo dnf install yq`
+  * Fedora Atomic: `sudo rpm-ostree install yq` (reboot required)
+  * Bazzite: `brew install yq`
+  * Ubuntu: `sudo apt install yq`
+
+### Required only for streaming ###
 
 * [Carla](https://kx.studio/Applications:Carla) - VST Host and audio routing
+  * Carla's VST support is better and the routing is more flexible than using the VST filter included in OBS
   * Fedora: `sudo dnf install Carla`
   * Fedora Atomic/Bazzite: `sudo rpm-ostree install Carla` (case sensitive)
     * [The flatpak package will not work with the converted VSTs](https://github.com/robbert-vdh/yabridge?tab=readme-ov-file#tested-with)
     * The `brew` install under Bazzite failed to connect to JACK for some reason so was similarly unusable
     * There may be a way other than layering to get this to work, but I haven't had any luck
-
-* [yq](https://github.com/mikefarah/yq) - Command line YAML parser (used to get details from the wine environment)
-  * Fedora: `sudo dnf install yq`
-  * Fedora Atomic: `sudo rpm-ostree install yq` (reboot required)
-  * Bazzite: `brew install yq`
+  * Ubuntu: `sudo apt install carla`
 
 ## Step 2 - Setting up the "Windows" environment and installing VSTs ##
 
@@ -49,7 +56,8 @@ In Bottles:
 * On the 'Runners' tab, open the 'Kron4ek' dropdown
 * Install "kron4ek-wine-9.21-staging-tkg-amd64"
 * Create a new bottle
-  * I've used `Application` as the base, it may not be necessary
+  * I've usually used `Application` as the base, it may not be necessary
+  * Reaplugs appear to work in a custom empty environment, but other plugins may need some extra dependencies
   * Make sure the Runner is "kron4ek-wine-9.21-staging-tkg-amd64" and not a different runtime
 * Install your VSTs into this newly created bottle through the UI
   * I would install a small set to check everything works, you can install more later if needed
@@ -70,7 +78,7 @@ Some files need to be in place for yabridge to work correctly.
   * run `yabridgectl sync`
   * You should see it list your VSTs
 
-## Step 4 - Setting up an Audio Sink (Optional) (Requires pipewire) ##
+## Step 4 - Setting up an Audio Sink (for streaming) (Requires pipewire) ##
 
 This step adds a "desktop audio" device and a virtual "microphone" that can be used for routing audio in Carla.
 
@@ -79,7 +87,7 @@ This step adds a "desktop audio" device and a virtual "microphone" that can be u
   * If you had some applications using audio, this will disconnect them in order to add the new virtual
     devices
 
-## Step 5 - Route your audio and setup your VSTs
+## Step 5 - Route your audio and setup your VSTs (for streaming) ##
 
 Load up Carla and add your plugins.
 
