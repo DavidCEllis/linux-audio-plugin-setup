@@ -8,7 +8,8 @@
 Try to find the appropriate wine runtime for a wine prefix that has been created
 by bottles.
 
-System WINE will only be used if specified by the bottle
+If system wine does not exist a separate wine install will be used with the prefix
+the user defines during setup.
 """
 
 import json
@@ -54,6 +55,8 @@ class Config:
 def get_wine_executable() -> str:
     config = Config.from_json(CONFIG_PATH)
 
+    wine_runtime = SYSTEM_WINE or config.default_wine
+
     if WINEPREFIX:
         # Attempt to get the runtime path from the wine prefix
         bottle_path = Path(WINEPREFIX) / "bottle.yml"
@@ -75,18 +78,19 @@ def get_wine_executable() -> str:
             if runner.startswith("sys-"):
                 if SYSTEM_WINE is None:
                     raise FileNotFoundError("System WINE requested by bottle but not found on PATH")
-                return SYSTEM_WINE
+                wine_runtime = SYSTEM_WINE
             elif runner:
                 # The bottle runtime
-                bottles_root = (
+                bottles_wine_binary = (
                     Path(WINEPREFIX).parents[1] / "runners" / runner / "bin" / "wine"
                 )
-                return str(bottles_root)
-    else:
-        # Set the wine prefix to avoid having yabridge mess with the user's default ~/.wine prefix
+                wine_runtime = str(bottles_wine_binary)
+    elif not SYSTEM_WINE:
+        # If there is no system wine, don't create a default prefix in the user dir
+        # Use the one setup during initialisation
         os.environ["WINEPREFIX"] = config.default_prefix
 
-    return config.default_wine
+    return wine_runtime
 
 
 def main() -> int:
