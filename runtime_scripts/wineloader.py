@@ -18,7 +18,6 @@ import shutil
 import sys
 import subprocess
 
-from dataclasses import dataclass
 from pathlib import Path
 
 YQ_BIN = shutil.which("yq")
@@ -33,10 +32,19 @@ WINEPREFIX = os.environ.get("WINEPREFIX")
 CONFIG_PATH = Path(__file__).resolve().parents[1] / "user_config" / "wine_settings.json"
 
 
-@dataclass
 class Config:
     default_wine: str
     default_prefix: str
+
+    def __init__(self, default_wine: str, default_prefix: str):
+        self.default_wine = default_wine
+        self.default_prefix = default_prefix
+
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}(default_wine={self.default_wine!r},"
+            f" default_prefix={self.default_prefix!r})"
+        )
 
     @classmethod
     def from_json(cls, config_path: Path):
