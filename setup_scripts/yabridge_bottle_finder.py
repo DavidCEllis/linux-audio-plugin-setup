@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+
 # This script will search for the standard VST Folders in 'bottles' and automatically add them to YABridge
 # This assumes that bottles has been installed from the flatpak
 

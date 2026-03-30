@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
 
-# Based on https://github.com/microfortnight/yabridge-bottles-wineloader
-# This uses a default bottle and runner instead of reverting to system WINE when
-# no prefix is given.
+# Logic gleaned from the behaviour of https://github.com/microfortnight/yabridge-bottles-wineloader
+# as I'm not too familiar with WINELOADER behaviour
+
+# This has an extra fallback to a chosen 'DEFAULT' runtime if there is no system WINE available
 
 """
 Try to find the appropriate wine runtime for a wine prefix that has been created
