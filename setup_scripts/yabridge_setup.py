@@ -127,12 +127,9 @@ def make_wineloader_executable(wineloader_script):
     )
 
 
-def create_yabridge_symlink():
-    yabridge_source = Path.home() / ".local/share/yabridge/yabridgectl"
-    yabridge_dest = Path.home() / ".local/bin/yabridgectl"
-
-    if yabridge_dest.exists():
-        print(f"yabridgectl already installed at '{yabridge_dest}'")
+def create_yabridge_symlink(yabridge_source: Path, yabridge_symlink: Path):
+    if yabridge_symlink.exists():
+        print(f"yabridgectl already installed at '{yabridge_symlink}'")
         return
 
     if not yabridge_source.exists():
@@ -143,18 +140,17 @@ def create_yabridge_symlink():
         check=True,
     )
 
-    yabridge_dest.symlink_to(yabridge_source.absolute())
+    yabridge_symlink.symlink_to(yabridge_source.absolute())
+    print(f"Link from '{yabridge_source}' to '{yabridge_symlink}' created")
 
 
-def remove_yabridge_symlink():
-    yabridge_dest = Path.home() / ".local/bin/yabridgectl"
-
+def remove_yabridge_symlink(yabridge_symlink: Path):
     try:
-        yabridge_dest.unlink()
+        yabridge_symlink.unlink()
     except FileNotFoundError:
-        print(f"'{yabridge_dest}' has already been removed")
+        print(f"'{yabridge_symlink}' has already been removed")
     else:
-        print(f"'{yabridge_dest}' removed")
+        print(f"'{yabridge_symlink}' removed")
 
 
 def main():
@@ -163,19 +159,27 @@ def main():
     )
     parser.add_argument(
         "--remove",
+        action="store_true",
         help="Remove the yabridge binary, wineloader script and environment variables"
     )
 
+    home = Path.home()
+
     args = parser.parse_args()
 
-    local_dir = Path.home() / ".local"
-    config_dir = Path.home() / ".config"
+    local_dir = home / ".local"
+    bin_dir = local_dir / "bin"
+    share_dir = local_dir / "share"
+    config_dir = home / ".config"
 
-    script_dest = local_dir / "bin/wineloader.py"
+    script_dest = bin_dir / "wineloader.py"
     conf_dest = config_dir / "environment.d/wineloader.conf"
 
+    yabridge_source = share_dir / "yabridge" / "yabridgectl"
+    yabridge_symlink = bin_dir / "yabridgectl"
+
     if args.remove:
-        remove_yabridge_symlink()
+        remove_yabridge_symlink(yabridge_symlink)
         uninstall(script_dest, conf_dest)
     else:
         config = Config.create()
@@ -184,7 +188,7 @@ def main():
 
         make_wineloader_executable(WINELOADER_SCRIPT)
         install(script_dest, conf_dest)
-        create_yabridge_symlink()
+        create_yabridge_symlink(yabridge_source, yabridge_symlink)
         print("Restart or logout/login to complete installation")
 
 
