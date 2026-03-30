@@ -25,6 +25,12 @@ does not check XDG environment variables.
 
 ### Always Required
 
+- This repository
+
+  - Clone this repository into a directory you are not going to change
+  - Some symlinks will be created to items in this folder so the scripts will break if you
+    remove these files after setup
+
 - [Bottles](https://flathub.org/en/apps/com.usebottles.bottles) - Wine environment manager
 
   - Install from the [flatpak](https://flathub.org/en/apps/com.usebottles.bottles)
@@ -112,6 +118,8 @@ Some files need to be in place for yabridge to work correctly.
 
 - **Reboot or logout and log back in to complete installation**
 
+  - This will set the `WINELOADER` environment variable
+
 - Run `./setup_scripts/yabridge_bottle_finder.py` to discover your VST folders
 
   - This will search for the standard VST folders within bottles and add the folders to
@@ -120,9 +128,12 @@ Some files need to be in place for yabridge to work correctly.
 - Sync `yabridge` with your VSTs
 
   - run `yabridgectl sync`
-  - You should see it list your VSTs
+  - You should see it list your new VSTs
 
 ## Extra Steps for setting up audio sinks for streaming
+
+These steps are for setting up extra audio devices for streaming and are not necessary if
+you are installing VSTs to use in a DAW.
 
 ### Step 4 - Setting up an Audio Sink (for streaming) (Requires pipewire)
 
@@ -164,8 +175,8 @@ Microphone -> VST Routing -> microphone-vst-sink
 
 - Original yabridge wineloader script
   - https://github.com/microfortnight/yabridge-bottles-wineloader
-  - The script included here modifies this by adding a `YABRIDGE_WINE` environment
-    variable that is used as if there is no system wine (such as on bazzite by default).
+  - The script included here modifies this by adding a fallback default WINE if there is no
+    system WINE install
 - Audio Sink Information
   - https://www.benashby.com/resources/pipewire-virtual-devices/
   - https://gitlab.freedesktop.org/pipewire/pipewire/-/wikis/Virtual-Devices#create-a-sink
