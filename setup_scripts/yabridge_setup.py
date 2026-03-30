@@ -10,9 +10,12 @@ from pathlib import Path
 from tkinter import Tk, filedialog
 
 
-WINELOADER_SCRIPT = Path(__file__).parents[1] / "runtime_scripts/wineloader.py"
-WINELOADER_CONF = Path(__file__).parents[1] / "runtime_config/wineloader.conf"
-CONFIG_PATH = Path(__file__).parents[1] / "user_config/wine_settings.json"
+HOME = Path.home()
+SETUP_FOLDER = Path(__file__).parents[1]
+
+WINELOADER_SCRIPT = SETUP_FOLDER / "runtime_scripts" / "wineloader.py"
+WINELOADER_CONF = SETUP_FOLDER / "runtime_config"/ "wineloader.conf"
+CONFIG_PATH = SETUP_FOLDER / "user_config" / "wine_settings.json"
 
 if not (WINELOADER_CONF.exists() and WINELOADER_SCRIPT.exists()):
     raise FileNotFoundError("Could not find wineloader.py and/or wineloader.conf")
@@ -163,14 +166,13 @@ def main():
         help="Remove the yabridge binary, wineloader script and environment variables"
     )
 
-    home = Path.home()
-
     args = parser.parse_args()
 
-    local_dir = home / ".local"
+    local_dir = HOME / ".local"
     bin_dir = local_dir / "bin"
     share_dir = local_dir / "share"
-    config_dir = home / ".config"
+
+    config_dir = HOME / ".config"
 
     script_dest = bin_dir / "wineloader.py"
     conf_dest = config_dir / "environment.d/wineloader.conf"
