@@ -56,6 +56,10 @@ does not check XDG environment variables.
   - Bazzite: `brew install yq`
   - Ubuntu: `sudo apt install yq`
 
+- [python3-tkinter] - The usually included TK gui for Python scripts
+  - For whatever reason this isn't included with bazzite by default, most other distros include it
+  - Bazzite: `sudo rpm-ostree install python3-tkinter`
+
 ### Required only for streaming
 
 - [Carla](https://kx.studio/Applications:Carla) - VST Host and audio routing
